@@ -2,7 +2,8 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { hash } from 'bcrypt';
+import { hash, genSalt } from 'bcrypt';
+import { User } from '@prisma/client';
 
 @Injectable()
 export class UsersService {
@@ -21,7 +22,9 @@ export class UsersService {
       throw new BadRequestException('Email already registered');
     }
 
-    const hashedPassword = await hash(password, 10);
+    const salt = await genSalt(10);
+
+    const hashedPassword = await hash(password, salt);
 
     const user = await this.prisma.user.create({
       data: {
@@ -34,12 +37,23 @@ export class UsersService {
     return user.id;
   }
 
-  findAll() {
-    return `This action returns all users`;
+  async findAll() {
+    return await this.prisma.user.findMany({
+      select: {
+        id: true,
+        uuid: true,
+        name: true,
+        email: true,
+      },
+    });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
+  async findOne(email: string): Promise<User | null> {
+    return await this.prisma.user.findUnique({
+      where: {
+        email,
+      },
+    });
   }
 
   update(id: number, updateUserDto: UpdateUserDto) {
