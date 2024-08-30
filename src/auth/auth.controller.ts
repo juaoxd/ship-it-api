@@ -10,4 +10,10 @@ export class AuthController {
   signIn(@Body() signInDto: Record<string, any>) {
     return this.authService.signIn(signInDto.email, signInDto.password);
   }
+
+  @HttpCode(HttpStatus.OK)
+  @Post('refresh')
+  refresh(@Body() refreshDto: Record<string, any>) {
+    return this.authService.refresh(refreshDto.refresh_token);
+  }
 }

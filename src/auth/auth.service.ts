@@ -13,7 +13,7 @@ export class AuthService {
   async signIn(
     username: string,
     pass: string,
-  ): Promise<{ access_token: string }> {
+  ): Promise<{ access_token: string; refresh_token: string }> {
     const user = await this.usersService.findOne(username);
 
     if (!user) {
@@ -28,7 +28,27 @@ export class AuthService {
 
     const payload = { sub: user.id, email: user.email };
     return {
-      access_token: await this.jwtService.signAsync(payload),
+      access_token: await this.jwtService.signAsync(payload, {
+        expiresIn: '60s',
+      }),
+      refresh_token: await this.jwtService.signAsync(payload, {
+        expiresIn: '7d',
+      }),
     };
+  }
+
+  async refresh(refreshToken: string): Promise<{ access_token: string }> {
+    try {
+      const payload = await this.jwtService.verifyAsync(refreshToken);
+      console.log(payload);
+      return {
+        access_token: await this.jwtService.signAsync(payload),
+      };
+    } catch (e) {
+      if (e.name === 'TokenExpiredError') {
+        throw new UnauthorizedException('Token expired');
+      }
+      throw new UnauthorizedException('Unauthorized');
+    }
   }
 }
