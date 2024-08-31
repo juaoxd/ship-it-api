@@ -37,12 +37,16 @@ export class AuthService {
     };
   }
 
-  async refresh(refreshToken: string): Promise<{ access_token: string }> {
+  async refresh(
+    refreshToken: string,
+  ): Promise<{ access_token: string; refresh_token: string }> {
     try {
       const payload = await this.jwtService.verifyAsync(refreshToken);
-      console.log(payload);
       return {
         access_token: await this.jwtService.signAsync(payload),
+        refresh_token: await this.jwtService.signAsync({
+          expiresIn: '7d',
+        }),
       };
     } catch (e) {
       if (e.name === 'TokenExpiredError') {
