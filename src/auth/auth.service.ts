@@ -49,10 +49,8 @@ export class AuthService {
         }),
       };
     } catch (e) {
-      if (e.name === 'TokenExpiredError') {
-        throw new UnauthorizedException('Token expired');
-      }
-      throw new UnauthorizedException('Unauthorized');
+      console.error(e.message);
+      throw new UnauthorizedException('Invalid token');
     }
   }
 }

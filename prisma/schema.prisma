@@ -14,11 +14,27 @@ datasource db {
 }
 
 model User {
-  id            Int    @id @default(autoincrement())
-  uuid          String @default(uuid())
-  email         String @unique
+  id            Int       @id @default(autoincrement())
+  email         String    @unique
   name          String
   password_hash String
+  address       Address[]
 
   @@map("users")
+}
+
+model Address {
+  id           Int    @id @default(autoincrement())
+  street       String
+  number       String
+  neighborhood String
+  complement   String
+  city         String
+  state        String
+  zip          String
+
+  user_id Int?
+  user    User? @relation(fields: [user_id], references: [id])
+
+  @@map("addresses")
 }
