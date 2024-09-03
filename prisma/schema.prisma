@@ -24,11 +24,11 @@ model User {
 }
 
 model Address {
-  id           Int    @id @default(autoincrement())
+  id           Int     @id @default(autoincrement())
   street       String
   number       String
   neighborhood String
-  complement   String
+  complement   String?
   city         String
   state        String
   zip          String
